@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Support Training - Interactive Modules</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .module-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .module-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+        }
+        .module-btn:hover, .module-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .module {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .module.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .module h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .scenario-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        .scenario-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .scenario-description {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            line-height: 1.6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .question h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .answer-options {
+            display: grid;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .answer-option:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+        .answer-option.selected {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        .answer-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .answer-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .feedback {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .score-display {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .troubleshooting-steps {
+            counter-reset: step-counter;
+        }
+        .step {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+            counter-increment: step-counter;
+        }
+        .step:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: -15px;
+            top: 15px;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .step.completed {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        .step.completed:before {
+            background: #28a745;
+            content: "✓";
+        }
+        .interactive-terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            position: relative;
+        }
+        .terminal-header {
+            background: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            margin: -20px -20px 20px -20px;
+            font-size: 0.9rem;
+        }
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            width: 100%;
+        }
+        .command-history {
+            margin-bottom: 10px;
+        }
+        .network-diagram {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 300px;
+            position: relative;
+            border: 2px solid #e9ecef;
+        }
+        .device {
+            position: absolute;
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .device:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .device.problem {
+            background: #dc3545;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .connection {
+            position: absolute;
+            height: 2px;
+            background: #28a745;
+            z-index: 1;
+        }
+        .connection.broken {
+            background: #dc3545;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .module-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            .module {
+                padding: 20px;
+            }
+            .answer-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛠️ Tech Support Training Hub</h1>
+            <p>Interactive modules to master technical troubleshooting skills</p>
+        </div>
+
+        <div class="module-nav">
+            <button class="module-btn active" onclick="showModule('basics')">Hardware Basics</button>
+            <button class="module-btn" onclick="showModule('networking')">Network Troubleshooting</button>
+            <button class="module-btn" onclick="showModule('software')">Software Issues</button>
+            <button class="module-btn" onclick="showModule('customer')">Customer Service</button>
+            <button class="module-btn" onclick="showModule('simulation')">Live Simulation</button>
+        </div>
+
+        <!-- Hardware Basics Module -->
+        <div id="basics" class="module active">
+            <h2>💻 Hardware Troubleshooting Basics</h2>
+            
+            <div class="scenario-card">
+                <div class="scenario-title">Scenario: Computer Won't Turn On</div>
+                <div class="scenario-description">
+                    A customer calls saying their desktop computer won't turn on at all. No lights, no fans, nothing happens when they press the power button.
+                </div>
+                
+                <div class="question">
+                    <h4>What should be your FIRST troubleshooting step?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            Replace the power supply immediately
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, true)">
+                            Check if the power cable is properly connected and the outlet is working
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            Open the computer case to check internal connections
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            Ask the customer to buy a new computer
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feedback">
+                    <strong>Correct!</strong> Always start with the basics - power connections and external factors before diving into internal components. This follows the principle of checking the simplest solutions first.
+                </div>
+                
+                <div class="troubleshooting-steps">
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Check Power Source</strong><br>
+                        Verify power cable connection and test the outlet with another device.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Inspect Power Button</strong><br>
+                        Ensure the power button isn't stuck or damaged.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Check Internal Connections</strong><br>
+                        Open case and verify all power connections are secure.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Test Power Supply</strong><br>
+                        Use multimeter or paperclip test to verify PSU functionality.
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-title">Interactive: Identify the Problem</div>
+                <div class="network-diagram" id="hardware-diagram">
+                    <div class="device" style="top: 20px; left: 20px;" onclick="checkDevice(this, false)">Monitor</div>
+                    <div class="device problem" style="top: 20px; left: 150px;" onclick="checkDevice(this, true)">Power Supply</div>
+                    <div class="device" style="top: 100px; left: 85px;" onclick="checkDevice(this, false)">Motherboard</div>
+                    <div class="device" style="top: 180px; left: 20px;" onclick="checkDevice(this, false)">Hard Drive</div>
+                    <div class="device" style="top: 180px; left: 150px;" onclick="checkDevice(this, false)">RAM</div>
+                </div>
+                <p style="text-align: center; margin-top: 20px;">
+                    <em>Click on the component you think is causing the "no power" issue</em>
+                </p>
+            </div>
+        </div>
+
+        <!-- Networking Module -->
+        <div id="networking" class="module">
+            <h2>🌐 Network Troubleshooting</h2>
+            
+            <div class="scenario-card">
+                <div class="scenario-title">Scenario: No Internet Connection</div>
+                <div class="scenario-description">
+                    A customer reports they can't access the internet. Their WiFi shows as connected but websites won't load.
+                </div>
+                
+                <div class="interactive-terminal">
+                    <div class="terminal-header">Command Prompt - Network Diagnostics</div>
+                    <div class="command-history" id="terminal-history">
+                        <div>C:\Users\Tech> <span style="color: white;">Welcome to network diagnostics</span></div>
+                        <div>Type commands to troubleshoot the network issue:</div>
+                        <div style="color: #ffff00;">Available commands: ping, ipconfig, nslookup, tracert</div>
+                    </div>
+                    <div>C:\Users\Tech> <input type="text" class="terminal-input" id="terminal-input" onkeypress="handleCommand(event)" placeholder="Type a command..."></div>
+                </div>
+
+                <div class="question">
+                    <h4>Based on the scenario, what's the most logical first command to run?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="selectAnswer(this, false)">tracert google.com</div>
+                        <div class="answer-option" onclick="selectAnswer(this, true)">ping 8.8.8.8</div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">nslookup facebook.com</div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">ipconfig /release</div>
+                    </div>
+                </div>
+                
+                <div class="feedback">
+                    <strong>Excellent choice!</strong> Pinging 8.8.8.8 (Google's DNS) tests basic internet connectivity without relying on DNS resolution, helping isolate the problem.
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-title">Network Topology Analysis</div>
+                <div class="network-diagram" id="network-diagram">
+                    <div class="device" style="top: 50px; left: 50px;" onclick="checkNetworkDevice(this, 'router')">Router</div>
+                    <div class="device problem" style="top: 50px; left: 200px;" onclick="checkNetworkDevice(this, 'modem')">Modem</div>
+                    <div class="device" style="top: 150px; left: 25px;" onclick="checkNetworkDevice(this, 'pc1')">PC 1</div>
+                    <div class="device" style="top: 150px; left: 125px;" onclick="checkNetworkDevice(this, 'pc2')">PC 2</div>
+                    <div class="device" style="top: 150px; left: 225px;" onclick="checkNetworkDevice(this, 'phone')">Phone</div>
+                    
+                    <div class="connection" style="top: 65px; left: 100px; width: 100px;"></div>
+                    <div class="connection broken" style="top: 65px; left: 250px; width: 80px;"></div>
+                    <div class="connection" style="top: 100px; left: 65px; width: 2px; height: 50px;"></div>
+                    <div class="connection" style="top: 100px; left: 140px; width: 2px; height: 50px;"></div>
+                    <div class="connection" style="top: 100px; left: 215px; width: 2px; height: 50px;"></div>
+                </div>
+                <p style="text-align: center; margin-top: 20px;">
+                    <em>Red blinking connections indicate network problems. Click devices to diagnose.</em>
+                </p>
+            </div>
+        </div>
+
+        <!-- Software Issues Module -->
+        <div id="software" class="module">
+            <h2>💿 Software Troubleshooting</h2>
+            
+            <div class="scenario-card">
+                <div class="scenario-title">Scenario: Application Crashes</div>
+                <div class="scenario-description">
+                    A customer's Microsoft Word keeps crashing every time they try to open a specific document. Other documents work fine.
+                </div>
+                
+                <div class="question">
+                    <h4>What's the most likely cause of this specific issue?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="selectAnswer(this, false)">The entire Office suite needs to be reinstalled</div>
+                        <div class="answer-option" onclick="selectAnswer(this, true)">The specific document file is corrupted</div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">The computer needs more RAM</div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">Windows needs to be updated</div>
+                    </div>
+                </div>
+                
+                <div class="feedback">
+                    <strong>Correct!</strong> Since other documents work fine, the issue is likely isolated to that specific file being corrupted. This is a common occurrence with document files.
+                </div>
+
+                <div class="troubleshooting-steps">
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Try Opening in Safe Mode</strong><br>
+                        Hold Ctrl while opening Word to start in safe mode, then try opening the document.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Check File Properties</strong><br>
+                        Right-click the file to check its size and properties for anomalies.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Use Document Recovery</strong><br>
+                        Try Word's built-in "Open and Repair" feature when opening the file.
+                    </div>
+                    <div class="step" onclick="toggleStep(this)">
+                        <strong>Restore from Backup</strong><br>
+                        Look for auto-recovery files or previous versions of the document.
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-title">Performance Optimization Quiz</div>
+                <div class="question">
+                    <h4>A customer complains their computer is running slowly. Rank these solutions from most to least effective:</h4>
+                    <div id="performance-solutions" class="answer-options">
+                        <div class="answer-option draggable" draggable="true" data-priority="3">Add more RAM</div>
+                        <div class="answer-option draggable" draggable="true" data-priority="1">Close unnecessary startup programs</div>
+                        <div class="answer-option draggable" draggable="true" data-priority="2">Run disk cleanup and defragmentation</div>
+                        <div class="answer-option draggable" draggable="true" data-priority="4">Buy a new computer</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="checkPerformanceOrder()">Check My Order</button>
+                <div class="feedback" id="performance-feedback">
+                    Your ranking will appear here after checking.
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Service Module -->
+        <div id="customer" class="module">
+            <h2>🎧 Customer Service Excellence</h2>
+            
+            <div class="scenario-card">
+                <div class="scenario-title">Scenario: Frustrated Customer</div>
+                <div class="scenario-description">
+                    A customer calls very upset because their computer crashed and they lost important work. They're yelling and demanding immediate compensation.
+                </div>
+                
+                <div class="question">
+                    <h4>What should be your first response?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            "Calm down, these things happen. Let me transfer you to my supervisor."
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, true)">
+                            "I understand how frustrating this must be for you. Let me help you recover your work and prevent this from happening again."
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            "That's not our fault. You should have backed up your files."
+                        </div>
+                        <div class="answer-option" onclick="selectAnswer(this, false)">
+                            "I can't help with compensation, but I can try to fix your computer."
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feedback">
+                    <strong>Perfect!</strong> Acknowledging their frustration and immediately offering to help shows empathy and takes control of the situation positively.
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-title">Communication Skills Practice</div>
+                <div class="question">
+                    <h4>Translate this technical explanation into customer-friendly language:</h4>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; font-style: italic;">
+                        "The TCP/IP stack is experiencing packet loss due to network congestion, causing timeouts in your HTTP requests."
+                    </div>
+                    
+                    <textarea id="customer-translation" style="width: 100%; height: 100px; padding: 15px; border: 2px solid #dee2e6; border-radius: 8px; resize: vertical;" placeholder="Write your customer-friendly explanation here..."></textarea>
+                    
+                    <button class="btn" onclick="checkTranslation()">Check My Translation</button>
+                </div>
+                
+                <div class="feedback" id="translation-feedback">
+                    Your translation feedback will appear here.
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Simulation Module -->
+        <div id="simulation" class="module">
+            <h2>🎮 Live Troubleshooting Simulation</h2>
+            
+            <div class="score-display">
+                <h3>Current Score: <span id="simulation-score">0</span> / 100</h3>
+                <div class="progress-bar">
+                    <div class="progress" id="simulation-progress"></div>
+                </div>
+            </div>
+
+            <div class="scenario-card">
+                <div class="scenario-title">Multi-Step Challenge: Complete Network Outage</div>
+                <div class="scenario-description">
+                    You're the lead tech support agent. Multiple customers are calling about internet outages in the downtown area. Work through this systematically.
+                </div>
+
+                <div id="simulation-step-1" class="question">
+                    <h4>Step 1: What's your first action when multiple customers report the same issue?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="simulationAnswer(1, false)">Help each customer individually</div>
+                        <div class="answer-option" onclick="simulationAnswer(1, true)">Check for area-wide outages and notify your supervisor</div>
+                        <div class="answer-option" onclick="simulationAnswer(1, false)">Tell customers to wait while you investigate</div>
+                    </div>
+                </div>
+
+                <div id="simulation-step-2" class="question" style="display: none;">
+                    <h4>Step 2: You confirm it's an area outage. How do you handle customer communications?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="simulationAnswer(2, true)">Proactively contact affected customers with updates and ETAs</div>
+                        <div class="answer-option" onclick="simulationAnswer(2, false)">Wait for customers to call and ask for updates</div>
+                        <div class="answer-option" onclick="simulationAnswer(2, false)">Only provide information when directly asked</div>
+                    </div>
+                </div>
+
+                <div id="simulation-step-3" class="question" style="display: none;">
+                    <h4>Step 3: The issue is resolved. What's your follow-up process?</h4>
+                    <div class="answer-options">
+                        <div class="answer-option" onclick="simulationAnswer(3, false)">Move on to the next tickets</div>
+                        <div class="answer-option" onclick="simulationAnswer(3, true)">Contact customers to confirm service restoration and document the incident</div>
+                        <div class="answer-option" onclick="simulationAnswer(3, false)">Wait for customers to call if they still have issues</div>
+                    </div>
+                </div>
+
+                <div id="simulation-complete" style="display: none;">
+                    <div class="score-display">
+                        <h3>🎉 Simulation Complete!</h3>
+                        <p>You've successfully handled a major network outage with professionalism and efficiency.</p>
+                        <button class="btn" onclick="resetSimulation()">Try Again</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentModule = 'basics';
+        let simulationScore = 0;
+        let simulationStep = 1;
+
+        // Module navigation
+        function showModule(moduleId) {
+            // Hide all modules
+            document.querySelectorAll('.module').forEach(module => {
+                module.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.module-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected module
+            document.getElementById(moduleId).classList.add('active');
+            event.target.classList.add('active');
+            currentModule = moduleId;
+        }
+
+        // Answer selection with feedback
+        function selectAnswer(element, isCorrect) {
+            // Remove previous selections
+            element.parentNode.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            element.classList.add('selected');
+            
+            // Show correct/incorrect styling
+            if (isCorrect) {
+                element.classList.add('correct');
+                // Show feedback
+                const feedback = element.closest('.scenario-card').querySelector('.feedback');
+                if (feedback) {
+                    feedback.classList.add('show');
+                }
+            } else {
+                element.classList.add('incorrect');
+                // Find and highlight correct answer
+                element.parentNode.querySelectorAll('.answer-option').forEach((option, index) => {
+                    // This is a simplified way - in a real app, you'd store correct answers
+                    if (option.onclick.toString().includes('true')) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+        }
+
+        // Troubleshooting steps toggle
+        function toggleStep(element) {
+            element.classList.toggle('completed');
+        }
+
+        // Device checking in hardware diagram
+        function checkDevice(element, isCorrect) {
+            if (isCorrect) {
+                element.style.background = '#28a745';
+                element.innerHTML += ' ✓';
+                alert('Correct! The power supply is the most likely culprit for a "no power" issue.');
+            } else {
+                element.style.background = '#6c757d';
+                element.innerHTML += ' ✗';
+            }
+        }
+
+        // Network device checking
+        function checkNetworkDevice(element, deviceType) {
+            if (deviceType === 'modem') {
+                element.style.background = '#28a745';
+                element.classList.remove('problem');
+                alert('Correct! The broken connection to the ISP through the modem is causing the internet outage.');
+            } else {
+                element.style.background = '#6c757d';
+                alert('Not the primary issue. Look for the device with connection problems to the internet.');
+            }
+        }
+
+        // Terminal command handling
+        function handleCommand(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const command = input.value.toLowerCase().trim();
+                const history = document.getElementById('terminal-history');
+                
+                // Add command to history
+                const commandLine = document.createElement('div');
+                commandLine.innerHTML = `C:\\Users\\Tech> <span style="color: white;">${input.value}</span>`;
+                history.appendChild(commandLine);
+                
+                // Process command and show results
+                const result = document.createElement('div');
+                result.style.color = '#ffff00';
+                
+                switch(command) {
+                    case 'ping 8.8.8.8':
+                        result.innerHTML = `
+                            Pinging 8.8.8.8 with 32 bytes of data:<br>
+                            Request timed out.<br>
+                            Request timed out.<br>
+                            Request timed out.<br>
+                            Request timed out.<br>
+                            <span style="color: #ff6666;">Ping statistics: 0% success rate</span>
+                        `;
+                        break;
+                    case 'ipconfig':
+                        result.innerHTML = `
+                            Windows IP Configuration<br><br>
+                            Ethernet adapter Local Area Connection:<br>
+                            &nbsp;&nbsp;&nbsp;IP Address: 192.168.1.105<br>
+                            &nbsp;&nbsp;&nbsp;Subnet Mask: 255.255.255.0<br>
+                            &nbsp;&nbsp;&nbsp;Default Gateway: 192.168.1.1
+                        `;
+                        break;
+                    case 'ping 192.168.1.1':
+                        result.innerHTML = `
+                            Pinging 192.168.1.1 with 32 bytes of data:<br>
+                            Reply from 192.168.1.1: bytes=32 time=1ms TTL=64<br>
+                            Reply from 192.168.1.1: bytes=32 time=1ms TTL=64<br>
+                            <span style="color: #66ff66;">Local network connectivity: OK</span>
+                        `;
+                        break;
+                    case 'nslookup google.com':
+                        result.innerHTML = `
+                            Server: UnKnown<br>
+                            Address: 192.168.1.1<br><br>
+                            DNS request timed out.<br>
+                            <span style="color: #ff6666;">DNS resolution failed</span>
+                        `;
+                        break;
+                    default:
+                        result.innerHTML = `'${command}' is not recognized as an internal or external command.`;
+                        result.style.color = '#ff6666';
+                }
+                
+                history.appendChild(result);
+                input.value = '';
+                
+                // Auto-scroll to bottom
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        // Performance solutions ordering
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const draggableElements = document.querySelectorAll('.draggable');
+            draggableElements.forEach(element => {
+                element.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                
+                element.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                
+                element.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (draggedElement !== this) {
+                        const parent = this.parentNode;
+                        const draggedIndex = Array.from(parent.children).indexOf(draggedElement);
+                        const targetIndex = Array.from(parent.children).indexOf(this);
+                        
+                        if (draggedIndex < targetIndex) {
+                            parent.insertBefore(draggedElement, this.nextSibling);
+                        } else {
+                            parent.insertBefore(draggedElement, this);
+                        }
+                    }
+                });
+            });
+        });
+
+        function checkPerformanceOrder() {
+            const container = document.getElementById('performance-solutions');
+            const elements = Array.from(container.children);
+            const feedback = document.getElementById('performance-feedback');
+            
+            let score = 0;
+            let feedbackText = '<strong>Your Ranking Analysis:</strong><br>';
+            
+            elements.forEach((element, index) => {
+                const priority = parseInt(element.dataset.priority);
+                const position = index + 1;
+                
+                if (priority === position) {
+                    score += 25;
+                    feedbackText += `✓ Position ${position}: ${element.textContent} - Correct!<br>`;
+                } else {
+                    feedbackText += `✗ Position ${position}: ${element.textContent} - Should be position ${priority}<br>`;
+                }
+            });
+            
+            feedbackText += `<br><strong>Score: ${score}/100</strong><br>`;
+            feedbackText += '<em>Optimal order: 1) Close startup programs, 2) Disk cleanup, 3) Add RAM, 4) New computer</em>';
+            
+            feedback.innerHTML = feedbackText;
+            feedback.classList.add('show');
+        }
+
+        // Customer translation checking
+        function checkTranslation() {
+            const translation = document.getElementById('customer-translation').value;
+            const feedback = document.getElementById('translation-feedback');
+            
+            if (translation.length < 20) {
+                feedback.innerHTML = '<strong>Too brief!</strong> Try to explain the issue more thoroughly in customer-friendly terms.';
+                feedback.style.background = '#f8d7da';
+            } else {
+                const hasJargon = /tcp|ip|stack|packet|http|congestion/i.test(translation);
+                
+                if (hasJargon) {
+                    feedback.innerHTML = '<strong>Good start, but avoid technical terms!</strong> Try explaining without using networking jargon.';
+                    feedback.style.background = '#fff3cd';
+                } else {
+                    feedback.innerHTML = '<strong>Excellent!</strong> You\'ve successfully translated technical language into customer-friendly terms. A good translation might be: "Your internet connection is experiencing delays because the network is very busy right now, which is why websites are loading slowly or not at all."';
+                    feedback.style.background = '#d4edda';
+                }
+            }
+            
+            feedback.classList.add('show');
+        }
+
+        // Simulation handling
+        function simulationAnswer(step, isCorrect) {
+            if (isCorrect) {
+                simulationScore += 30;
+                updateSimulationProgress();
+                
+                // Move to next step
+                document.getElementById(`simulation-step-${step}`).style.display = 'none';
+                
+                if (step < 3) {
+                    document.getElementById(`simulation-step-${step + 1}`).style.display = 'block';
+                } else {
+                    document.getElementById('simulation-complete').style.display = 'block';
+                }
+            } else {
+                // Show feedback but don't advance
+                alert('Not the best choice. Think about the most efficient way to handle multiple related issues.');
+            }
+        }
+
+        function updateSimulationProgress() {
+            document.getElementById('simulation-score').textContent = simulationScore;
+            document.getElementById('simulation-progress').style.width = (simulationScore / 90 * 100) + '%';
+        }
+
+        function resetSimulation() {
+            simulationScore = 0;
+            simulationStep = 1;
+            updateSimulationProgress();
+            
+            // Reset all simulation steps
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`simulation-step-${i}`).style.display = i === 1 ? 'block' : 'none';
+                
+                // Reset answer selections
+                document.querySelectorAll(`#simulation-step-${i} .answer-option`).forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+            }
+            
+            document.getElementById('simulation-complete').style.display = 'none';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Tech Support Training Hub loaded successfully!');
+            
+            // Add some interactivity hints
+            setTimeout(() => {
+                if (currentModule === 'basics') {
+                    const steps = document.querySelectorAll('.step');
+                    if (steps.length > 0) {
+                        steps[0].style.animation = 'pulse 2s infinite';
+                    }
+                }
+            }, 2000);
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey) {
+                switch(event.key) {
+                    case '1':
+                        event.preventDefault();
+                        showModule('basics');
+                        break;
+                    case '2':
+                        event.preventDefault();
+                        showModule('networking');
+                        break;
+                    case '3':
+                        event.preventDefault();
+                        showModule('software');
+                        break;
+                    case '4':
+                        event.preventDefault();
+                        showModule('customer');
+                        break;
+                    case '5':
+                        event.preventDefault();
+                        showModule('simulation');
+                        break;
+                }
+            }
+        });
+
+        // Add touch support for mobile devices
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndY = event.changedTouches[0].screenY;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                // Add haptic feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+
+        // Performance monitoring
+        function logModuleUsage(moduleName) {
+            console.log(`Module accessed: ${moduleName} at ${new Date().toISOString()}`);
+            // In a real implementation, this would send analytics data
+        }
+
+        // Override showModule to include logging
+        const originalShowModule = showModule;
+        showModule = function(moduleId) {
+            originalShowModule(moduleId);
+            logModuleUsage(moduleId);
+        };
+    </script>
+</body>
+</html>
